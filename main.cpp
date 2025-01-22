@@ -46,7 +46,7 @@ void printCheck(const vector<MenuItem> &menuList, const vector<int> &order) {
     cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << "Price\n";
     cout << "--------------------------------------------\n";
 
-    for (int itemNo: order) {
+    for (const int itemNo: order) {
         for (const auto &item: menuList) {
             if (item.itemNo == itemNo) {
                 cout << left << setw(10) << item.itemNo << setw(20) << item.name << "$" << fixed << setprecision(2) <<
@@ -57,8 +57,8 @@ void printCheck(const vector<MenuItem> &menuList, const vector<int> &order) {
         }
     }
 
-    double tax = subtotal * 0.05;
-    double total = subtotal + tax;
+    const double tax = subtotal * 0.05;
+    const double total = subtotal + tax;
 
     cout << "--------------------------------------------\n";
     cout << left << setw(30) << "Tax" << "$" << fixed << setprecision(2) << tax << "\n";
