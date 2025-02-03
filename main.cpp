@@ -12,6 +12,12 @@ struct MenuItem {
     double price;
 };
 
+// Modified to include quantity in order tracking
+struct OrderItem {
+    int itemNo;
+    int quantity;
+};
+
 // Function to load menu data
 vector<MenuItem> getData() {
     return {
@@ -26,7 +32,6 @@ vector<MenuItem> getData() {
     };
 }
 
-// Function to display the menu
 void showMenu(const vector<MenuItem> &menuList) {
     cout << "********Welcome to Meal Hut*********\n";
     cout << "\tBreakfast Billing System\n\n";
@@ -38,20 +43,22 @@ void showMenu(const vector<MenuItem> &menuList) {
     }
 }
 
-// Function to calculate and print the bill
-void printCheck(const vector<MenuItem> &menuList, const vector<int> &order) {
+void printCheck(const vector<MenuItem> &menuList, const vector<OrderItem> &order) {
     double subtotal = 0.0;
 
     cout << "\nYour Order:\n";
-    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << "Price\n";
-    cout << "--------------------------------------------\n";
+    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Qty" << "Price\n";
+    cout << "------------------------------------------------\n";
 
-    for (const int itemNo: order) {
-        for (const auto &item: menuList) {
-            if (item.itemNo == itemNo) {
-                cout << left << setw(10) << item.itemNo << setw(20) << item.name << "$" << fixed << setprecision(2) <<
-                        item.price << "\n";
-                subtotal += item.price;
+    for (const auto &orderItem: order) {
+        for (const auto &menuItem: menuList) {
+            if (menuItem.itemNo == orderItem.itemNo) {
+                double itemTotal = menuItem.price * orderItem.quantity;
+                cout << left << setw(10) << menuItem.itemNo
+                        << setw(20) << menuItem.name
+                        << setw(10) << orderItem.quantity
+                        << "$" << fixed << setprecision(2) << itemTotal << "\n";
+                subtotal += itemTotal;
                 break;
             }
         }
@@ -60,15 +67,17 @@ void printCheck(const vector<MenuItem> &menuList, const vector<int> &order) {
     const double tax = subtotal * 0.05;
     const double total = subtotal + tax;
 
-    cout << "--------------------------------------------\n";
+    cout << "------------------------------------------------\n";
+    cout << left << setw(30) << "Subtotal" << "$" << fixed << setprecision(2) << subtotal << "\n";
     cout << left << setw(30) << "Tax" << "$" << fixed << setprecision(2) << tax << "\n";
     cout << left << setw(30) << "Amount Due" << "$" << fixed << setprecision(2) << total << "\n";
 }
 
 int main() {
     vector<MenuItem> menuList = getData();
-    vector<int> order;
+    vector<OrderItem> order;
     int choice;
+    int quantity;
 
     do {
         cout << "\n";
@@ -80,9 +89,18 @@ int main() {
             bool found = false;
             for (const auto &item: menuList) {
                 if (item.itemNo == choice) {
-                    order.push_back(choice);
+                    cout << "Enter quantity for " << item.name << ": ";
+                    cin >> quantity;
+
+                    // Validate quantity
+                    while (quantity <= 0) {
+                        cout << "Invalid quantity. Please enter a positive number: ";
+                        cin >> quantity;
+                    }
+
+                    order.push_back({choice, quantity});
                     found = true;
-                    cout << item.name << " added to your order.\n";
+                    cout << quantity << " " << item.name << "(s) added to your order.\n";
                     break;
                 }
             }
