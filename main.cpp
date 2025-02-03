@@ -16,7 +16,7 @@ struct OrderItem {
     int quantity;    // Quantity ordered
 };
 
-// Function to load menu items
+// Function to load menu items (get data)
 void loadMenu(MenuItem menu[], int &size) {
     size = 8; // Total number of items in the menu
 
@@ -31,7 +31,7 @@ void loadMenu(MenuItem menu[], int &size) {
 }
 
 // Function to display menu
-void displayMenu(const MenuItem menu[], int size) {
+void displayMenu(const MenuItem menu[], const int size) {
     cout << "******** Welcome to Meal Hut ********\n";
     cout << "******** Breakfast Billing System ********\n\n";
     cout << "Item No\tMenu Item\tPrice\n";
@@ -43,7 +43,7 @@ void displayMenu(const MenuItem menu[], int size) {
 }
 
 // Function to display order receipt
-void printReceipt(const MenuItem menu[], int menuSize, const OrderItem order[], int orderSize) {
+void printReceipt(const MenuItem menu[], const int menuSize, const OrderItem order[], const int orderSize) {
     float subtotal = 0.0;
 
     cout << "\nYour Order:\n";
@@ -61,8 +61,8 @@ void printReceipt(const MenuItem menu[], int menuSize, const OrderItem order[], 
         }
     }
 
-    float tax = subtotal * 0.05; // 5% tax
-    float total = subtotal + tax;
+    const float tax = subtotal * 0.05; // 5% tax
+    const float total = subtotal + tax;
 
     cout << "-------------------------------------\n";
     cout << "Subtotal:\t\t$" << subtotal << "\n";
@@ -79,7 +79,7 @@ int main() {
     int orderSize = 0;
     int choice, quantity;
 
-    loadMenu(menu, menuSize); // Load menu items
+    loadMenu(menu, menuSize); // Load menu items to array
 
     do {
         cout << "\n";
