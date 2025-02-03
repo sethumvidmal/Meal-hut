@@ -1,119 +1,124 @@
 #include <iostream>
-#include <iomanip>
-#include <vector>
 #include <string>
 
 using namespace std;
 
-// Struct to store menu item details
+// Structure to store menu item details
 struct MenuItem {
-    int itemNo;
-    string name;
-    double price;
+    int itemNo;       // Item number
+    string name;      // Item name
+    float price;      // Price of the item
 };
 
-// Modified to include quantity in order tracking
+// Structure to store order details
 struct OrderItem {
-    int itemNo;
-    int quantity;
+    int itemNo;      // Item number ordered
+    int quantity;    // Quantity ordered
 };
 
-// Function to load menu data
-vector<MenuItem> getData() {
-    return {
-        {111, "Plain Egg", 1.45},
-        {112, "Bacon and Egg", 2.45},
-        {113, "Muffin", 0.99},
-        {114, "French Toast", 1.99},
-        {115, "Fruit Basket", 2.49},
-        {116, "Cereal", 0.69},
-        {117, "Coffee", 0.50},
-        {118, "Tea", 0.75}
-    };
+// Function to load menu items
+void loadMenu(MenuItem menu[], int &size) {
+    size = 8; // Total number of items in the menu
+
+    menu[0] = {111, "Plain Egg", 1.45};
+    menu[1] = {112, "Bacon and Egg", 2.45};
+    menu[2] = {113, "Muffin", 0.99};
+    menu[3] = {114, "French Toast", 1.99};
+    menu[4] = {115, "Fruit Basket", 2.49};
+    menu[5] = {116, "Cereal", 0.69};
+    menu[6] = {117, "Coffee", 0.50};
+    menu[7] = {118, "Tea", 0.75};
 }
 
-void showMenu(const vector<MenuItem> &menuList) {
-    cout << "********Welcome to Meal Hut*********\n";
-    cout << "\tBreakfast Billing System\n\n";
-    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << "Price\n";
-    cout << "--------------------------------------------\n";
-    for (const auto &item: menuList) {
-        cout << left << setw(10) << item.itemNo << setw(20) << item.name << "$" << fixed << setprecision(2) << item.
-                price << "\n";
+// Function to display menu
+void displayMenu(const MenuItem menu[], int size) {
+    cout << "******** Welcome to Meal Hut ********\n";
+    cout << "******** Breakfast Billing System ********\n\n";
+    cout << "Item No\tMenu Item\tPrice\n";
+    cout << "------------------------------------\n";
+
+    for (int i = 0; i < size; i++) {
+        cout << menu[i].itemNo << "\t" << menu[i].name << "\t\t$" << menu[i].price << "\n";
     }
 }
 
-void printCheck(const vector<MenuItem> &menuList, const vector<OrderItem> &order) {
-    double subtotal = 0.0;
+// Function to display order receipt
+void printReceipt(const MenuItem menu[], int menuSize, const OrderItem order[], int orderSize) {
+    float subtotal = 0.0;
 
     cout << "\nYour Order:\n";
-    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Qty" << "Price\n";
-    cout << "------------------------------------------------\n";
+    cout << "Item No\tMenu Item\tQty\tPrice\n";
+    cout << "-------------------------------------\n";
 
-    for (const auto &orderItem: order) {
-        for (const auto &menuItem: menuList) {
-            if (menuItem.itemNo == orderItem.itemNo) {
-                double itemTotal = menuItem.price * orderItem.quantity;
-                cout << left << setw(10) << menuItem.itemNo
-                        << setw(20) << menuItem.name
-                        << setw(10) << orderItem.quantity
-                        << "$" << fixed << setprecision(2) << itemTotal << "\n";
+    for (int i = 0; i < orderSize; i++) {
+        for (int j = 0; j < menuSize; j++) {
+            if (menu[j].itemNo == order[i].itemNo) {
+                float itemTotal = menu[j].price * order[i].quantity;
+                cout << menu[j].itemNo << "\t" << menu[j].name << "\t\t" << order[i].quantity << "\t$" << itemTotal << "\n";
                 subtotal += itemTotal;
                 break;
             }
         }
     }
 
-    const double tax = subtotal * 0.05;
-    const double total = subtotal + tax;
+    float tax = subtotal * 0.05; // 5% tax
+    float total = subtotal + tax;
 
-    cout << "------------------------------------------------\n";
-    cout << left << setw(30) << "Subtotal" << "$" << fixed << setprecision(2) << subtotal << "\n";
-    cout << left << setw(30) << "Tax" << "$" << fixed << setprecision(2) << tax << "\n";
-    cout << left << setw(30) << "Amount Due" << "$" << fixed << setprecision(2) << total << "\n";
+    cout << "-------------------------------------\n";
+    cout << "Subtotal:\t\t$" << subtotal << "\n";
+    cout << "Tax (5%):\t\t$" << tax << "\n";
+    cout << "Total Amount:\t\t$" << total << "\n";
 }
 
 int main() {
-    vector<MenuItem> menuList = getData();
-    vector<OrderItem> order;
-    int choice;
-    int quantity;
+    const int MAX_MENU = 10;  // Max menu items
+    const int MAX_ORDER = 10; // Max orders
+    MenuItem menu[MAX_MENU];  // Array to store menu
+    OrderItem order[MAX_ORDER]; // Array to store orders
+    int menuSize;
+    int orderSize = 0;
+    int choice, quantity;
+
+    loadMenu(menu, menuSize); // Load menu items
 
     do {
         cout << "\n";
-        showMenu(menuList);
-        cout << "\nEnter the item number to add to your order (or 0 to finish): ";
+        displayMenu(menu, menuSize);
+        cout << "\nEnter item number to order (0 to finish): ";
         cin >> choice;
 
         if (choice != 0) {
             bool found = false;
-            for (const auto &item: menuList) {
-                if (item.itemNo == choice) {
-                    cout << "Enter quantity for " << item.name << ": ";
+
+            // Check if item exists in menu
+            for (int i = 0; i < menuSize; i++) {
+                if (menu[i].itemNo == choice) {
+                    cout << "Enter quantity for " << menu[i].name << ": ";
                     cin >> quantity;
 
-                    // Validate quantity
                     while (quantity <= 0) {
-                        cout << "Invalid quantity. Please enter a positive number: ";
+                        cout << "Invalid quantity. Enter again: ";
                         cin >> quantity;
                     }
 
-                    order.push_back({choice, quantity});
+                    order[orderSize++] = {choice, quantity};
                     found = true;
-                    cout << quantity << " " << item.name << "(s) added to your order.\n";
+                    cout << quantity << " " << menu[i].name << "(s) added to order.\n";
                     break;
                 }
             }
+
             if (!found) {
-                cout << "Invalid item number. Please try again.\n";
+                cout << "Invalid item number. Try again.\n";
             }
         }
-    } while (choice != 0);
+    } while (choice != 0 && orderSize < MAX_ORDER);
 
-    if (!order.empty()) {
-        printCheck(menuList, order);
+    // Print receipt if order exists
+    if (orderSize > 0) {
+        printReceipt(menu, menuSize, order, orderSize);
     } else {
-        cout << "\nNo items were ordered.\n";
+        cout << "\nNo items ordered.\n";
     }
 
     cout << "\nThank you for dining at Meal Hut!\n";
