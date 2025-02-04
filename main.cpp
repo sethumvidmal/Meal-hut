@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <vector>
 #include <string>
 
 using namespace std;
@@ -18,9 +17,12 @@ struct OrderItem {
     int quantity;
 };
 
-// Function to load menu data
-vector<MenuItem> getData() {
-    return {
+const int MAX_MENU_ITEMS = 8; // Maximum number of menu items
+const int MAX_ORDER_ITEMS = 50; // Maximum number of items in an order
+
+// Function to initialize menu data
+void getData(MenuItem menuList[], int &menuSize) {
+    const MenuItem items[] = {
         {111, "Plain Egg", 1.45},
         {112, "Bacon and Egg", 2.45},
         {113, "Muffin", 0.99},
@@ -30,33 +32,40 @@ vector<MenuItem> getData() {
         {117, "Coffee", 0.50},
         {118, "Tea", 0.75}
     };
+
+    menuSize = 8;
+    // Copy menu items to menuList
+    for (int i = 0; i < menuSize; i++) {
+        menuList[i] = items[i];
+    }
 }
 
-void showMenu(const vector<MenuItem> &menuList) {
+void showMenu(const MenuItem menuList[], const int menuSize) {
     cout << "********Welcome to Meal Hut*********\n";
     cout << "\tBreakfast Billing System\n\n";
     cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << "Price\n";
     cout << "--------------------------------------------\n";
-    for (const auto &item: menuList) {
-        cout << left << setw(10) << item.itemNo << setw(20) << item.name << "$" << fixed << setprecision(2) << item.
-                price << "\n";
+    for (int i = 0; i < menuSize; i++) {
+        cout << left << setw(10) << menuList[i].itemNo
+                << setw(20) << menuList[i].name
+                << "$" << fixed << setprecision(2) << menuList[i].price << "\n";
     }
 }
 
-void printCheck(const vector<MenuItem> &menuList, const vector<OrderItem> &order) {
+void printCheck(const MenuItem menuList[], const int menuSize, const OrderItem order[], const int orderSize) {
     double subtotal = 0.0;
 
     cout << "\nYour Order:\n";
     cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Qty" << "Price\n";
     cout << "------------------------------------------------\n";
 
-    for (const auto &orderItem: order) {
-        for (const auto &menuItem: menuList) {
-            if (menuItem.itemNo == orderItem.itemNo) {
-                double itemTotal = menuItem.price * orderItem.quantity;
-                cout << left << setw(10) << menuItem.itemNo
-                        << setw(20) << menuItem.name
-                        << setw(10) << orderItem.quantity
+    for (int i = 0; i < orderSize; i++) {
+        for (int j = 0; j < menuSize; j++) {
+            if (menuList[j].itemNo == order[i].itemNo) {
+                double itemTotal = menuList[j].price * order[i].quantity;
+                cout << left << setw(10) << menuList[j].itemNo
+                        << setw(20) << menuList[j].name
+                        << setw(10) << order[i].quantity
                         << "$" << fixed << setprecision(2) << itemTotal << "\n";
                 subtotal += itemTotal;
                 break;
@@ -74,22 +83,26 @@ void printCheck(const vector<MenuItem> &menuList, const vector<OrderItem> &order
 }
 
 int main() {
-    vector<MenuItem> menuList = getData();
-    vector<OrderItem> order;
+    MenuItem menuList[MAX_MENU_ITEMS];
+    OrderItem order[MAX_ORDER_ITEMS];
+    int menuSize;
+    int orderSize = 0;
     int choice;
     int quantity;
 
+    getData(menuList, menuSize);
+
     do {
         cout << "\n";
-        showMenu(menuList);
+        showMenu(menuList, menuSize);
         cout << "\nEnter the item number to add to your order (or 0 to finish): ";
         cin >> choice;
 
         if (choice != 0) {
             bool found = false;
-            for (const auto &item: menuList) {
-                if (item.itemNo == choice) {
-                    cout << "Enter quantity for " << item.name << ": ";
+            for (int i = 0; i < menuSize; i++) {
+                if (menuList[i].itemNo == choice) {
+                    cout << "Enter quantity for " << menuList[i].name << ": ";
                     cin >> quantity;
 
                     // Validate quantity
@@ -98,9 +111,15 @@ int main() {
                         cin >> quantity;
                     }
 
-                    order.push_back({choice, quantity});
-                    found = true;
-                    cout << quantity << " " << item.name << "(s) added to your order.\n";
+                    if (orderSize < MAX_ORDER_ITEMS) {
+                        order[orderSize].itemNo = choice;
+                        order[orderSize].quantity = quantity;
+                        orderSize++;
+                        found = true;
+                        cout << quantity << " " << menuList[i].name << "(s) added to your order.\n";
+                    } else {
+                        cout << "Order is full. Cannot add more items.\n";
+                    }
                     break;
                 }
             }
@@ -110,8 +129,8 @@ int main() {
         }
     } while (choice != 0);
 
-    if (!order.empty()) {
-        printCheck(menuList, order);
+    if (orderSize > 0) {
+        printCheck(menuList, menuSize, order, orderSize);
     } else {
         cout << "\nNo items were ordered.\n";
     }
