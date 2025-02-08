@@ -1,140 +1,126 @@
 #include <iostream>
 #include <iomanip>
-#include <string>
-
 using namespace std;
 
-// Struct to store menu item details
-struct MenuItem {
+// Structure to store menu items
+struct MenuItem
+{
     int itemNo;
-    string name;
+    string itemName;
     double price;
 };
 
-// Modified to include quantity in order tracking
-struct OrderItem {
-    int itemNo;
-    int quantity;
-};
-
-const int MAX_MENU_ITEMS = 8; // Maximum number of menu items
-const int MAX_ORDER_ITEMS = 50; // Maximum number of items in an order
-
-// Function to initialize menu data
-void getData(MenuItem menuList[], int &menuSize) {
-    const MenuItem items[] = {
-        {111, "Plain Egg", 1.45},
-        {112, "Bacon and Egg", 2.45},
-        {113, "Muffin", 0.99},
-        {114, "French Toast", 1.99},
-        {115, "Fruit Basket", 2.49},
-        {116, "Cereal", 0.69},
-        {117, "Coffee", 0.50},
-        {118, "Tea", 0.75}
-    };
-
-    menuSize = 8;
-    // Copy menu items to menuList
-    for (int i = 0; i < menuSize; i++) {
-        menuList[i] = items[i];
-    }
+// Function to load data into menuList
+void getData(MenuItem menuList[], int &menuSize)
+{
+    // Initialize menu items
+    menuList[0] = {111, "Plain Egg", 1.45};
+    menuList[1] = {112, "Bacon and Egg", 2.45};
+    menuList[2] = {113, "Muffin", 0.99};
+    menuList[3] = {114, "French Toast", 1.99};
+    menuList[4] = {115, "Fruit Basket", 2.49};
+    menuList[5] = {116, "Cereal", 0.69};
+    menuList[6] = {117, "Coffee", 0.50};
+    menuList[7] = {118, "Tea", 0.75};
+    menuSize = 8; // Number of items in the menu
 }
 
-void showMenu(const MenuItem menuList[], const int menuSize) {
+// Function to display the menu in a table format
+void showMenu(const MenuItem menuList[], int menuSize)
+{
     cout << "********Welcome to Meal Hut*********\n";
-    cout << "\tBreakfast Billing System\n\n";
-    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << "Price\n";
+    cout << "          Breakfast Billing System\n";
     cout << "--------------------------------------------\n";
-    for (int i = 0; i < menuSize; i++) {
-        cout << left << setw(10) << menuList[i].itemNo
-                << setw(20) << menuList[i].name
-                << "$" << fixed << setprecision(2) << menuList[i].price << "\n";
+    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Price" << endl;
+    cout << "--------------------------------------------\n";
+    for (int i = 0; i < menuSize; i++)
+    {
+        cout << left << setw(10) << menuList[i].itemNo << setw(20) << menuList[i].itemName << "$" << fixed << setprecision(2) << menuList[i].price << endl;
     }
+    cout << "--------------------------------------------\n";
 }
 
-void printCheck(const MenuItem menuList[], const int menuSize, const OrderItem order[], const int orderSize) {
+// Function to calculate and print the bill in a table format
+void printCheck(const int selectedItems[], int selectedSize, const MenuItem menuList[], int menuSize)
+{
     double subtotal = 0.0;
-
-    cout << "\nYour Order:\n";
-    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Qty" << "Price\n";
-    cout << "------------------------------------------------\n";
-
-    for (int i = 0; i < orderSize; i++) {
-        for (int j = 0; j < menuSize; j++) {
-            if (menuList[j].itemNo == order[i].itemNo) {
-                double itemTotal = menuList[j].price * order[i].quantity;
-                cout << left << setw(10) << menuList[j].itemNo
-                        << setw(20) << menuList[j].name
-                        << setw(10) << order[i].quantity
-                        << "$" << fixed << setprecision(2) << itemTotal << "\n";
-                subtotal += itemTotal;
+    cout << "\n********Your Bill********\n";
+    cout << "--------------------------------------------\n";
+    cout << left << setw(10) << "Item No" << setw(20) << "Menu Item" << setw(10) << "Price" << endl;
+    cout << "--------------------------------------------\n";
+    for (int i = 0; i < selectedSize; i++)
+    {
+        for (int j = 0; j < menuSize; j++)
+        {
+            if (menuList[j].itemNo == selectedItems[i])
+            {
+                cout << left << setw(10) << menuList[j].itemNo << setw(20) << menuList[j].itemName << "$" << fixed << setprecision(2) << menuList[j].price << endl;
+                subtotal += menuList[j].price;
                 break;
             }
         }
     }
-
-    const double tax = subtotal * 0.05;
-    const double total = subtotal + tax;
-
-    cout << "------------------------------------------------\n";
-    cout << left << setw(30) << "Subtotal" << "$" << fixed << setprecision(2) << subtotal << "\n";
-    cout << left << setw(30) << "Tax" << "$" << fixed << setprecision(2) << tax << "\n";
-    cout << left << setw(30) << "Amount Due" << "$" << fixed << setprecision(2) << total << "\n";
+    double tax = subtotal * 0.05;
+    double total = subtotal + tax;
+    cout << "--------------------------------------------\n";
+    cout << right << setw(30) << "Tax: " << "$" << fixed << setprecision(2) << tax << endl;
+    cout << right << setw(30) << "Amount Due: " << "$" << fixed << setprecision(2) << total << endl;
+    cout << "--------------------------------------------\n";
 }
 
-int main() {
+int main()
+{
+    const int MAX_MENU_ITEMS = 100;     // Maximum number of menu items
+    const int MAX_SELECTED_ITEMS = 100; // Maximum number of selected items
     MenuItem menuList[MAX_MENU_ITEMS];
-    OrderItem order[MAX_ORDER_ITEMS];
-    int menuSize;
-    int orderSize = 0;
+    int selectedItems[MAX_SELECTED_ITEMS];
+    int menuSize = 0;     // Number of items in the menu
+    int selectedSize = 0; // Number of selected items
     int choice;
-    int quantity;
 
+    // Load menu data
     getData(menuList, menuSize);
 
-    do {
-        cout << "\n";
-        showMenu(menuList, menuSize);
-        cout << "\nEnter the item number to add to your order (or 0 to finish): ";
+    do
+    {
+        cout << "\n********Welcome to Meal Hut*********\n";
+        cout << "1. Show Menu\n";
+        cout << "2. Add Item to Order\n";
+        cout << "3. Print Bill\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
         cin >> choice;
 
-        if (choice != 0) {
-            bool found = false;
-            for (int i = 0; i < menuSize; i++) {
-                if (menuList[i].itemNo == choice) {
-                    cout << "Enter quantity for " << menuList[i].name << ": ";
-                    cin >> quantity;
-
-                    // Validate quantity
-                    while (quantity <= 0) {
-                        cout << "Invalid quantity. Please enter a positive number: ";
-                        cin >> quantity;
-                    }
-
-                    if (orderSize < MAX_ORDER_ITEMS) {
-                        order[orderSize].itemNo = choice;
-                        order[orderSize].quantity = quantity;
-                        orderSize++;
-                        found = true;
-                        cout << quantity << " " << menuList[i].name << "(s) added to your order.\n";
-                    } else {
-                        cout << "Order is full. Cannot add more items.\n";
-                    }
-                    break;
-                }
+        switch (choice)
+        {
+        case 1:
+            showMenu(menuList, menuSize);
+            break;
+        case 2:
+            int itemNo;
+            cout << "Enter item number to add to order: ";
+            cin >> itemNo;
+            if (selectedSize < MAX_SELECTED_ITEMS)
+            {
+                selectedItems[selectedSize] = itemNo;
+                selectedSize++;
+                cout << "Item added to order.\n";
             }
-            if (!found) {
-                cout << "Invalid item number. Please try again.\n";
+            else
+            {
+                cout << "Order limit reached. Cannot add more items.\n";
             }
+            break;
+        case 3:
+            printCheck(selectedItems, selectedSize, menuList, menuSize);
+            break;
+        case 4:
+            cout << "Thank you for using Meal Hut!\n";
+            break;
+        default:
+            cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 0);
+    } while (choice != 4);
 
-    if (orderSize > 0) {
-        printCheck(menuList, menuSize, order, orderSize);
-    } else {
-        cout << "\nNo items were ordered.\n";
-    }
-
-    cout << "\nThank you for dining at Meal Hut!\n";
     return 0;
 }
