@@ -1,27 +1,14 @@
 #include <iostream>
-#include <string>
 using namespace std;
 
-int getTotal(const int firstNumber, const int secondNumber) {
-    const int total = firstNumber + secondNumber;
-    return total;
-}
-
-
-string getGreeting(const string name) {
-    const string greeting = "Hello " + name;
-    return greeting;
-}
-
-void aneManda(const int age) {
-    const int newAge = age + 10;
-    cout << newAge << endl;
-
-}
-
 int main() {
+    bool a = true;
+    bool b = false;
 
-    aneManda(20);
+    if (a | b) {
+        cout << "Hola" << endl;
+    }
+
+
     return 0;
-
 }
